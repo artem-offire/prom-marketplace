@@ -1,0 +1,42 @@
+name: Epic
+description: Велика тема, що групує кілька історій
+title: "[Epic] "
+labels: ["type:epic"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Мета
+      description: Яку бізнес-цінність дає цей epic.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Що входить
+      description: Перелік очікуваних історій (потім замінюється списком завдань `- [ ] #n`).
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Що не входить
+    validations:
+      required: false
+  - type: textarea
+    id: success
+    attributes:
+      label: Як зрозуміємо, що epic завершено
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Пріоритет
+      options:
+        - critical
+        - high
+        - medium
+        - low
+    validations:
+      required: true

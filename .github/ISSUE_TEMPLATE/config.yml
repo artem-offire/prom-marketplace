@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Документація проєкту
+    url: https://github.com/OWNER/prom-marketplace/blob/main/README.md
+    about: Спершу перегляньте README та docs/, можливо відповідь уже там.
+  - name: Scrum-процес
+    url: https://github.com/OWNER/prom-marketplace/blob/main/docs/scrum/README.md
+    about: Правила Definition of Ready, Definition of Done та оцінювання.

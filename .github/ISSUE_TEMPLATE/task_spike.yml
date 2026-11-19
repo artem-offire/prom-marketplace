@@ -1,0 +1,65 @@
+name: Технічне завдання або спайк
+description: Технічна задача без користувацької історії або дослідження з обмеженим часом
+title: "[Завдання] "
+labels: ["type:task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Для спайку (дослідження) після створення замініть мітку `type:task` на `type:spike`.
+  - type: textarea
+    id: goal
+    attributes:
+      label: Мета
+      description: Що потрібно зробити або дізнатися.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Обсяг і обмеження
+      description: "Що входить і що ні. Для спайку: ліміт часу."
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Критерії завершення
+      description: "Для завдання: перелік перевірок. Для спайку: результат (документ, ADR, рішення)."
+    validations:
+      required: true
+  - type: input
+    id: epic
+    attributes:
+      label: Epic
+      description: "Номер issue epic, наприклад #1."
+    validations:
+      required: false
+  - type: dropdown
+    id: estimate
+    attributes:
+      label: Оцінка (Story Points)
+      options:
+        - "1"
+        - "2"
+        - "3"
+        - "5"
+        - "8"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Область
+      options:
+        - seller
+        - catalog
+        - subscription
+        - advertising
+        - order
+        - billing
+        - payment
+        - infra
+        - docs
+    validations:
+      required: true

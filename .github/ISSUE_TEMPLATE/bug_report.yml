@@ -1,0 +1,70 @@
+name: Повідомлення про помилку
+description: Щось працює не так, як очікується
+title: "[Помилка] "
+labels: ["type:bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Короткий опис
+      description: Що сталося і чому це неправильно.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Кроки відтворення
+      description: Нумерований список запитів або дій (можна curl).
+      placeholder: |
+        1. POST /api/v1/sellers ...
+        2. POST /api/v1/orders ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Очікуваний результат
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Фактичний результат
+      description: Відповідь сервера (код, поле code), числа, логи.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Область
+      options:
+        - seller
+        - catalog
+        - subscription
+        - advertising
+        - order
+        - billing
+        - payment
+        - infra
+        - docs
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Пріоритет
+      options:
+        - critical
+        - high
+        - medium
+        - low
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Середовище
+      description: Версія коду (коміт), профіль (dev або postgres), JDK.
+      placeholder: main@abc1234, профіль dev, JDK 21
+    validations:
+      required: false

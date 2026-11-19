@@ -1,0 +1,92 @@
+name: Користувацька історія
+description: Нова функціональність у форматі користувацької історії
+title: "[Історія] "
+labels: ["type:story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Заповніть усі поля. Історія має відповідати Definition of Ready (docs/scrum/definition-of-ready.md).
+  - type: textarea
+    id: story
+    attributes:
+      label: Користувацька історія
+      description: "Формат: Як [роль], я хочу [дію], щоб [користь]."
+      placeholder: Як продавець, я хочу поповнити баланс, щоб оплачувати рекламу.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Критерії приймання
+      description: Щонайменше два сценарії у форматі Given/When/Then.
+      placeholder: |
+        - **Given** продавець з балансом 0.00, **When** він поповнює 100.00, **Then** баланс дорівнює 100.00.
+    validations:
+      required: true
+  - type: textarea
+    id: technical
+    attributes:
+      label: Технічні нотатки
+      description: Модулі, формули, приклади чисел, залежності.
+    validations:
+      required: false
+  - type: input
+    id: epic
+    attributes:
+      label: Epic
+      description: "Номер issue epic, наприклад #3."
+    validations:
+      required: true
+  - type: dropdown
+    id: estimate
+    attributes:
+      label: Оцінка (Story Points)
+      description: Оцінка 13 означає, що історію треба розбити.
+      options:
+        - "1"
+        - "2"
+        - "3"
+        - "5"
+        - "8"
+        - "13"
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Область
+      options:
+        - seller
+        - catalog
+        - subscription
+        - advertising
+        - order
+        - billing
+        - payment
+        - infra
+        - docs
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Пріоритет
+      options:
+        - critical
+        - high
+        - medium
+        - low
+    validations:
+      required: true
+  - type: checkboxes
+    id: dor
+    attributes:
+      label: Definition of Ready
+      options:
+        - label: Є критерії приймання Given/When/Then
+          required: true
+        - label: Є оцінка і мітки type, priority, area, sp
+          required: true
+        - label: Залежності вказані або їх немає
+          required: true

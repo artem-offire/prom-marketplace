@@ -1,0 +1,12 @@
+package ua.marketplace.billing;
+
+public enum TransactionType {
+    TOP_UP,
+    SUBSCRIPTION_CHARGE,
+    AD_CLICK_CHARGE,
+    ORDER_COMMISSION,
+    ORDER_COMMISSION_REFUND,
+    ONLINE_PAYMENT_CAPTURE,
+    ONLINE_PAYMENT_REFUND,
+    ADJUSTMENT
+}
