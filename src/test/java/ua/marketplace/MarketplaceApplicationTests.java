@@ -33,7 +33,8 @@ class MarketplaceApplicationTests {
     @Test
     void migrationsAndSeedDataArePresent() {
         Integer migrations = jdbc.queryForObject(
-            "select count(*) from flyway_schema_history where success = TRUE", Integer.class);
+            "select count(*) from flyway_schema_history where success = TRUE and version is not null",
+            Integer.class);
         assertThat(migrations).isEqualTo(7);
 
         Integer plans = jdbc.queryForObject("select count(*) from plan", Integer.class);

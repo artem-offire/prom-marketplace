@@ -61,7 +61,13 @@ done < <(jq -c '.milestones[]' "$BACKLOG_FILE")
 ms_title() { jq -r --arg k "$1" '.milestones[] | select(.key == $k) | .title' "$BACKLOG_FILE"; }
 
 # ---------------------------------------------------------------- допоміжне
-ISSUES_JSON="$(gh issue list --repo "$REPO" --state all --limit 1000 --json number,title </dev/null)"
+# Лише REST API (GraphQL може бути недоступний). PR відфільтровано.
+ISSUES_JSON="$(gh api "repos/$REPO/issues?state=all&per_page=100" --paginate </dev/null \
+  | jq -s 'add // [] | map(select(.pull_request | not) | {number, title})')"
+ms_number() {
+  gh api "repos/$REPO/milestones?state=all&per_page=100" </dev/null \
+    | jq -r --arg t "$1" '[.[] | select(.title == $t) | .number][0] // empty'
+}
 NUMS='{}'   # key -> номер issue
 
 set_num() { NUMS="$(jq -c --arg k "$1" --argjson n "$2" '.[$k] = $n' <<<"$NUMS")"; }
@@ -98,16 +104,14 @@ ensure_issue() {
     return 0
   fi
   body="$(render_body "$entry")"
-  args=(--repo "$REPO" --title "$title" --body "$body")
-  while IFS= read -r l; do
-    args+=(--label "$l")
-  done < <(jq -r '.labels[]' <<<"$entry")
   ms_key="$(jq -r '.milestone // empty' <<<"$entry")"
+  local ms_num=""
   if [ -n "$ms_key" ]; then
-    args+=(--milestone "$(ms_title "$ms_key")")
+    ms_num="$(ms_number "$(ms_title "$ms_key")")"
   fi
-  url="$(gh issue create "${args[@]}" </dev/null)"
-  number="${url##*/}"
+  number="$(jq -n --arg t "$title" --arg b "$body" --argjson e "$entry" --arg m "$ms_num" \
+      '{title: $t, body: $b, labels: $e.labels} + (if $m == "" then {} else {milestone: ($m | tonumber)} end)' \
+    | gh api --method POST "repos/$REPO/issues" --input - --jq .number)"
   set_num "$key" "$number"
   log "  створено #$number: $title"
   sleep 1
@@ -143,7 +147,8 @@ while IFS= read -r row; do
   done < <(jq -r --arg k "$ekey" '[.issues[], .backlog[]] | map(select(.epic == $k)) | .[].key' "$BACKLOG_FILE")
   ebody="$(jq -r '.body | join("\n")' <<<"$row")"
   ebody="$(printf '%s\n\n## Завдання\n%s' "$ebody" "$tasks")"
-  gh issue edit "$enum" --repo "$REPO" --body "$ebody" </dev/null >/dev/null
+  jq -n --arg b "$ebody" '{body: $b}' \
+    | gh api --method PATCH "repos/$REPO/issues/$enum" --input - >/dev/null
   log "  оновлено epic #$enum ($ekey)"
 done < <(jq -c '.epics[]' "$BACKLOG_FILE")
 
