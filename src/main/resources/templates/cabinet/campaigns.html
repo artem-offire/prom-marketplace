@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Реклама', ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/cabinet-nav :: nav(${seller}, 'campaigns')}"></div>
+  <h1>Рекламні кампанії</h1>
+
+  <div class="alert alert-info" role="note" th:unless="${canAdvertise}">
+    Реклама доступна з пакета START.
+    <a th:href="@{/cabinet/{sid}/plan(sid=${seller.id})}">Переглянути пакети</a>
+  </div>
+
+  <div class="table-scroll" th:if="${not #lists.isEmpty(campaigns)}">
+    <table class="table">
+      <caption class="visually-hidden">Ваші кампанії</caption>
+      <thead>
+        <tr>
+          <th scope="col">Назва</th>
+          <th scope="col">Статус</th>
+          <th scope="col" class="num">Денний бюджет</th>
+          <th scope="col" class="num">Витрачено сьогодні</th>
+          <th scope="col" class="num">Залишок на сьогодні</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="c : ${campaigns}">
+          <td><a th:href="@{/cabinet/{sid}/campaigns/{cid}(sid=${seller.id},cid=${c.id})}" th:text="${c.name}">Кампанія</a></td>
+          <td><span class="badge" th:classappend="${'badge-' + c.status.name()}" th:text="#{campaign.status.__${c.status}__}">Активна</span></td>
+          <td class="num" th:text="${@fmt.money(c.dailyBudget)}">100,00 грн</td>
+          <td class="num" th:text="${@fmt.money(c.spentToday)}">0,00 грн</td>
+          <td class="num" th:text="${@fmt.money(c.remainingBudget)}">100,00 грн</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="empty" th:if="${#lists.isEmpty(campaigns) and canAdvertise}">
+    <p>Кампаній ще немає.</p>
+  </div>
+
+  <section class="card" aria-labelledby="new-camp" th:if="${canAdvertise}">
+    <h2 id="new-camp">Нова кампанія</h2>
+    <form th:action="@{/cabinet/{sid}/campaigns(sid=${seller.id})}" method="post" th:object="${form}" novalidate>
+      <div th:replace="~{fragments/form-errors :: global}"></div>
+      <div class="field" th:classappend="${#fields.hasErrors('name')} ? 'has-error'">
+        <label for="name">Назва</label>
+        <input type="text" id="name" th:field="*{name}" maxlength="200"
+               th:attr="aria-invalid=${#fields.hasErrors('name')} ? 'true', aria-describedby=${#fields.hasErrors('name')} ? 'name-error'">
+        <small id="name-error" class="field-error" role="alert"
+               th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Помилка</small>
+      </div>
+      <div class="field" th:classappend="${#fields.hasErrors('dailyBudget')} ? 'has-error'">
+        <label for="dailyBudget">Денний бюджет, грн</label>
+        <input type="text" id="dailyBudget" th:field="*{dailyBudget}" inputmode="decimal"
+               th:attr="aria-invalid=${#fields.hasErrors('dailyBudget')} ? 'true', aria-describedby=${#fields.hasErrors('dailyBudget')} ? 'dailyBudget-error'">
+        <small class="muted">Мінімум: <span th:text="${@fmt.money(minBudget)}">50,00 грн</span></small>
+        <small id="dailyBudget-error" class="field-error" role="alert"
+               th:if="${#fields.hasErrors('dailyBudget')}" th:errors="*{dailyBudget}">Помилка</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Створити кампанію</button>
+    </form>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Кабінет продавця', ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/temp-access-banner :: banner}"></div>
+  <h1>Кабінет продавця</h1>
+
+  <div class="two-cols">
+    <section class="card" aria-labelledby="open-heading">
+      <h2 id="open-heading">Відкрити кабінет</h2>
+      <p class="muted">Вкажіть номер продавця, який ви отримали після реєстрації.</p>
+      <form th:action="@{/cabinet/open}" method="get">
+        <div class="field">
+          <label for="sellerId">Номер продавця</label>
+          <input type="text" id="sellerId" name="sellerId" inputmode="numeric" maxlength="18">
+        </div>
+        <button type="submit" class="btn btn-primary">Відкрити</button>
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="reg-heading">
+      <h2 id="reg-heading">Зареєструватися</h2>
+      <p class="muted">Новий продавець починає з пакета FREE.</p>
+      <form th:action="@{/cabinet/register}" method="post" th:object="${form}" novalidate>
+        <div th:replace="~{fragments/form-errors :: global}"></div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('name')} ? 'has-error'">
+          <label for="name">Назва магазину або ім’я</label>
+          <input type="text" id="name" th:field="*{name}" maxlength="200"
+                 th:attr="aria-invalid=${#fields.hasErrors('name')} ? 'true', aria-describedby=${#fields.hasErrors('name')} ? 'name-error'">
+          <small id="name-error" class="field-error" role="alert"
+                 th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Помилка</small>
+        </div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('email')} ? 'has-error'">
+          <label for="email">Пошта</label>
+          <input type="email" id="email" th:field="*{email}" maxlength="254" autocomplete="email"
+                 th:attr="aria-invalid=${#fields.hasErrors('email')} ? 'true', aria-describedby=${#fields.hasErrors('email')} ? 'email-error'">
+          <small id="email-error" class="field-error" role="alert"
+                 th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Помилка</small>
+        </div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('phone')} ? 'has-error'">
+          <label for="phone">Телефон (необов’язково)</label>
+          <input type="tel" id="phone" th:field="*{phone}" maxlength="32" autocomplete="tel"
+                 th:attr="aria-invalid=${#fields.hasErrors('phone')} ? 'true', aria-describedby=${#fields.hasErrors('phone')} ? 'phone-error'">
+          <small id="phone-error" class="field-error" role="alert"
+                 th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">Помилка</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Створити кабінет</button>
+      </form>
+    </section>
+  </div>
+</main>
+</body>
+</html>

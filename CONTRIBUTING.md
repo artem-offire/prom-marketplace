@@ -26,7 +26,7 @@
 ## 3. Коміти (Conventional Commits)
 
 Формат: `<тип>(<модуль>): <опис у наказовому способі>`. Типи: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`, `build`.
-Модулі (scope): `common`, `seller`, `billing`, `subscription`, `catalog`, `advertising`, `order`, `payment`, `infra`, `docs`.
+Модулі (scope): `common`, `seller`, `billing`, `subscription`, `catalog`, `advertising`, `order`, `payment`, `web`, `infra`, `docs`.
 У тілі або в кінці: `Refs #N`. Приклади:
 
 ```text
@@ -65,7 +65,9 @@ Refs #11
 | advertising | catalog, subscription, billing, common |
 | order | catalog, subscription, billing, common |
 | payment | order, subscription, billing, common |
+| web | усі модулі (лише сервіси і DTO, без репозиторіїв і сутностей), common; ніхто не залежить від web |
 
+- Кожна сторінка інтерфейсу має тест `MockMvc` (дивись `src/test/java/ua/marketplace/web`); рядки з апострофом у тестах пишіть як `\u2019`, суми будуйте через `Html.uah(...)`.
 - Зміни схеми БД: тільки новою міграцією Flyway `V{n}__опис.sql`. Уже застосовані міграції не редагуємо.
 
 ## 6. Правила коду

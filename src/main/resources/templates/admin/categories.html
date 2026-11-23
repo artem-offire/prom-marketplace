@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Категорії', ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/temp-access-banner :: banner}"></div>
+  <h1>Адмінка: категорії</h1>
+  <p class="muted">Комісія за замовлення і мінімальна ставка реклами задаються для кожної категорії.</p>
+
+  <div class="alert alert-error" role="alert" th:if="${pricingErrors != null}">
+    <p th:each="err : ${pricingErrors}" th:text="${err}">Помилка</p>
+  </div>
+
+  <div class="table-scroll">
+    <table class="table">
+      <caption class="visually-hidden">Категорії</caption>
+      <thead>
+        <tr>
+          <th scope="col">№</th>
+          <th scope="col">Назва</th>
+          <th scope="col" class="num">Комісія</th>
+          <th scope="col" class="num">Мін. ставка</th>
+          <th scope="col">Змінити тарифи</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="c : ${categories}">
+          <td th:text="${c.id}">1</td>
+          <td th:text="${c.name}">Електроніка</td>
+          <td class="num" th:text="${@fmt.percent(c.commissionRate)}">5,00 %</td>
+          <td class="num" th:text="${@fmt.money(c.minBid)}">2,00 грн</td>
+          <td>
+            <form class="inline-form" th:action="@{/admin/categories/{id}/pricing(id=${c.id})}" method="post">
+              <label class="visually-hidden" th:for="${'rate-' + c.id}">Комісія, %</label>
+              <input type="text" th:id="${'rate-' + c.id}" name="commissionRate" inputmode="decimal" size="6"
+                     th:value="${pricingId != null and pricingId == c.id} ? ${pricingRaw['commissionRate']} : ${@fmt.plain(c.commissionRate)}">
+              <label class="visually-hidden" th:for="${'bid-' + c.id}">Мінімальна ставка, грн</label>
+              <input type="text" th:id="${'bid-' + c.id}" name="minBid" inputmode="decimal" size="6"
+                     th:value="${pricingId != null and pricingId == c.id} ? ${pricingRaw['minBid']} : ${@fmt.plain(c.minBid)}">
+              <button type="submit" class="btn btn-secondary">Зберегти</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <section class="card" aria-labelledby="newcat-heading">
+    <h2 id="newcat-heading">Нова категорія</h2>
+    <form th:action="@{/admin/categories}" method="post" th:object="${form}" novalidate>
+      <div th:replace="~{fragments/form-errors :: global}"></div>
+
+      <div class="field" th:classappend="${#fields.hasErrors('name')} ? 'has-error'">
+        <label for="name">Назва</label>
+        <input type="text" id="name" th:field="*{name}" maxlength="200"
+               th:attr="aria-invalid=${#fields.hasErrors('name')} ? 'true', aria-describedby=${#fields.hasErrors('name')} ? 'name-error'">
+        <small id="name-error" class="field-error" role="alert"
+               th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Помилка</small>
+      </div>
+
+      <div class="field" th:classappend="${#fields.hasErrors('parentId')} ? 'has-error'">
+        <label for="parentId">Батьківська категорія</label>
+        <select id="parentId" th:field="*{parentId}">
+          <option value="">Без батьківської</option>
+          <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}">Категорія</option>
+        </select>
+        <small id="parentId-error" class="field-error" role="alert"
+               th:if="${#fields.hasErrors('parentId')}" th:errors="*{parentId}">Помилка</small>
+      </div>
+
+      <div class="field" th:classappend="${#fields.hasErrors('commissionRate')} ? 'has-error'">
+        <label for="commissionRate">Комісія за замовлення, %</label>
+        <input type="text" id="commissionRate" th:field="*{commissionRate}" inputmode="decimal" placeholder="7,50"
+               th:attr="aria-invalid=${#fields.hasErrors('commissionRate')} ? 'true', aria-describedby=${#fields.hasErrors('commissionRate')} ? 'commissionRate-error'">
+        <small id="commissionRate-error" class="field-error" role="alert"
+               th:if="${#fields.hasErrors('commissionRate')}" th:errors="*{commissionRate}">Помилка</small>
+      </div>
+
+      <div class="field" th:classappend="${#fields.hasErrors('minBid')} ? 'has-error'">
+        <label for="minBid">Мінімальна ставка, грн</label>
+        <input type="text" id="minBid" th:field="*{minBid}" inputmode="decimal" placeholder="2,00"
+               th:attr="aria-invalid=${#fields.hasErrors('minBid')} ? 'true', aria-describedby=${#fields.hasErrors('minBid')} ? 'minBid-error'">
+        <small id="minBid-error" class="field-error" role="alert"
+               th:if="${#fields.hasErrors('minBid')}" th:errors="*{minBid}">Помилка</small>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Додати категорію</button>
+    </form>
+  </section>
+</main>
+</body>
+</html>

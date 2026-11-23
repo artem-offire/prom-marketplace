@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Помилка запиту', ~{::main})}">
+<body>
+<main id="main" class="container narrow">
+  <h1 th:text="${errorTitle ?: 'Некоректний запит'}">Некоректний запит</h1>
+  <p th:text="${errorMessage ?: 'Запит не вдалося виконати. Перевірте адресу і спробуйте ще раз.'}">Запит не вдалося виконати.</p>
+  <p class="muted" th:if="${status != null}">Код: <span th:text="${status}">400</span></p>
+  <p><a class="btn btn-primary" th:href="@{/}">На головну</a></p>
+</main>
+</body>
+</html>

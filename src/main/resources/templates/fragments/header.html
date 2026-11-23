@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="site-header" th:fragment="header">
+  <div class="container header-inner">
+    <a class="brand" th:href="@{/}">
+      <span class="brand-mark" aria-hidden="true">Р</span>
+      <span class="brand-text">
+        <span class="brand-name" th:text="#{app.brand}">Ринок</span>
+        <span class="brand-tagline" th:text="#{app.tagline}">навчальний маркетплейс</span>
+      </span>
+    </a>
+    <form class="header-search" role="search" th:action="@{/catalog}" method="get">
+      <label class="visually-hidden" for="header-q">Пошук товарів</label>
+      <input type="search" id="header-q" name="q" placeholder="Пошук товарів" maxlength="100">
+      <button type="submit" class="btn btn-secondary">Знайти</button>
+    </form>
+    <nav class="main-nav" aria-label="Головне меню">
+      <ul>
+        <li><a th:href="@{/catalog}">Каталог</a></li>
+        <li><a th:href="@{/cabinet}">Кабінет продавця</a></li>
+        <li th:if="${devTools}"><a th:href="@{/admin/categories}">Адмінка</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Помилка сервера', ~{::main})}">
+<body>
+<main id="main" class="container narrow">
+  <h1 th:text="${errorTitle ?: 'Щось пішло не так'}">Щось пішло не так</h1>
+  <p th:text="${errorMessage ?: 'Спробуйте повторити дію пізніше.'}">Спробуйте повторити дію пізніше.</p>
+  <p class="muted" th:if="${status != null}">Код: <span th:text="${status}">500</span></p>
+  <p><a class="btn btn-primary" th:href="@{/}">На головну</a></p>
+</main>
+</body>
+</html>

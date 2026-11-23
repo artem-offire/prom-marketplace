@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Баланс', ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/cabinet-nav :: nav(${seller}, 'balance')}"></div>
+  <h1>Баланс</h1>
+
+  <div class="tiles">
+    <section class="tile" aria-labelledby="b-balance">
+      <h2 id="b-balance" class="tile-title">Баланс</h2>
+      <p class="tile-value" th:text="${@fmt.money(balance.balance)}">0,00 грн</p>
+    </section>
+    <section class="tile" aria-labelledby="b-payable">
+      <h2 id="b-payable" class="tile-title">До виплати</h2>
+      <p class="tile-value" th:text="${@fmt.money(balance.payable)}">0,00 грн</p>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="topup-heading">
+    <h2 id="topup-heading">Поповнити баланс</h2>
+    <form th:action="@{/cabinet/{sid}/balance/top-up(sid=${seller.id})}" method="post" th:object="${form}" novalidate>
+      <div th:replace="~{fragments/form-errors :: global}"></div>
+      <input type="hidden" th:field="*{idempotencyKey}">
+      <small class="field-error" role="alert"
+             th:if="${#fields.hasErrors('idempotencyKey')}" th:errors="*{idempotencyKey}">Помилка</small>
+      <div class="field" th:classappend="${#fields.hasErrors('amount')} ? 'has-error'">
+        <label for="amount">Сума, грн</label>
+        <input type="text" id="amount" th:field="*{amount}" inputmode="decimal" placeholder="1000,50"
+               th:attr="aria-invalid=${#fields.hasErrors('amount')} ? 'true', aria-describedby=${#fields.hasErrors('amount')} ? 'amount-error'">
+        <small id="amount-error" class="field-error" role="alert"
+               th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}">Помилка</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Поповнити</button>
+      <p class="muted">Це навчальне поповнення без реального платежу.</p>
+    </form>
+  </section>
+
+  <section aria-labelledby="hist-heading">
+    <h2 id="hist-heading">Історія операцій</h2>
+    <form class="filter-bar" th:action="@{/cabinet/{sid}/balance(sid=${seller.id})}" method="get">
+      <div class="field">
+        <label for="type">Тип операції</label>
+        <select id="type" name="type">
+          <option value="">Усі операції</option>
+          <option th:each="t : ${types}" th:value="${t.name()}" th:text="#{tx.__${t}__}"
+                  th:selected="${selectedType != null and selectedType.name() == t.name()}">Поповнення</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-secondary">Показати</button>
+    </form>
+
+    <div class="table-scroll" th:if="${not #lists.isEmpty(entries.content)}">
+      <table class="table">
+        <caption class="visually-hidden">Історія операцій</caption>
+        <thead>
+          <tr>
+            <th scope="col">Дата</th>
+            <th scope="col">Операція</th>
+            <th scope="col">Рахунок</th>
+            <th scope="col">Напрям</th>
+            <th scope="col" class="num">Сума</th>
+            <th scope="col">Опис</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="e : ${entries.content}">
+            <td th:text="${@fmt.dateTime(e.createdAt)}">01.01.2026 10:00</td>
+            <td th:text="#{tx.__${e.type}__}">Поповнення</td>
+            <td th:text="${@fmt.accountLabel(e.accountCode)}">Баланс</td>
+            <td th:text="#{tx.direction.__${e.direction}__}">Зарахування</td>
+            <td class="num" th:text="${@fmt.money(e.amount)}">100,00 грн</td>
+            <td th:text="${e.description}">Опис</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="empty" th:if="${#lists.isEmpty(entries.content)}">
+      <p>Операцій ще немає</p>
+    </div>
+    <div th:replace="~{fragments/pager :: pager(${pager})}"></div>
+  </section>
+</main>
+</body>
+</html>

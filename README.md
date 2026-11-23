@@ -41,6 +41,20 @@ docker run --rm -e POSTGRES_USER=marketplace -e POSTGRES_PASSWORD=marketplace \
 
 Змінні середовища: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
 
+## Інтерфейс
+
+Після `./mvnw spring-boot:run` відкрийте `http://localhost:8080/`: вітрина «Ринок», кабінет продавця за адресою `/cabinet` і адмінка категорій за `/admin/categories`. Докладніше: [docs/ui.md](docs/ui.md).
+
+Демонстрація в браузері за п’ять кроків:
+
+1. Відкрийте `/cabinet`, створіть продавця (пакет FREE) і поповніть баланс на сторінці «Баланс».
+2. На сторінці «Пакети» придбайте пакет PRO (купівля доступна з пакета FREE).
+3. На сторінці «Товари» додайте товар; він з’явиться на головній у блоці «Нові товари».
+4. Відкрийте товар у вітрині, натисніть «Купити», оформіть замовлення з онлайн-оплатою і натисніть «Імітувати успішну оплату» (кнопка режиму розробки).
+5. У кабінеті відкрийте «Замовлення»: підтвердіть, відправте і завершіть замовлення; на сторінці «Баланс» видно комісію.
+
+Застосунок без автентифікації і без захисту CSRF: не розгортайте його у відкритій мережі.
+
 ## Приклад сценарію через API
 
 ```bash
@@ -60,13 +74,14 @@ curl -s -X POST localhost:8080/api/v1/sellers/1/subscription -H 'Content-Type: a
 curl -s localhost:8080/api/v1/sellers/1/balance
 ```
 
-Усі помилки повертаються у форматі RFC 7807 з полем `code`, наприклад `INSUFFICIENT_FUNDS`.
+Усі помилки API (`/api/v1/**`) повертаються у форматі RFC 7807 з полем `code`, наприклад `INSUFFICIENT_FUNDS`; сторінки інтерфейсу показують помилки як HTML.
 
 ## Структура репозиторію
 
 | Шлях | Призначення |
 |---|---|
-| `src/main/java/ua/marketplace/` | код за модулями: `common`, `seller`, `billing`, `subscription`, `catalog`, `advertising`, `order`, `payment` |
+| `src/main/java/ua/marketplace/` | код за модулями: `common`, `seller`, `billing`, `subscription`, `catalog`, `advertising`, `order`, `payment`, `web` (інтерфейс) |
+| `src/main/resources/templates/`, `static/` | шаблони Thymeleaf, CSS і значок інтерфейсу |
 | `src/main/resources/db/migration/` | міграції Flyway V1..V7 |
 | `docs/` | архітектура, монетизація, ADR, Scrum-документи |
 | `scripts/github/` | `backlog.json` і `bootstrap.sh` для створення міток, віх та issues |
@@ -76,6 +91,7 @@ curl -s localhost:8080/api/v1/sellers/1/balance
 
 - [Архітектура](docs/architecture.md)
 - [Модель монетизації](docs/monetization.md)
+- [Веб-інтерфейс](docs/ui.md)
 - [Архітектурні рішення (ADR)](docs/adr/0001-modular-monolith.md)
 - [Scrum-процес](docs/scrum/README.md)
 - [Правила внеску](CONTRIBUTING.md)
@@ -99,6 +115,8 @@ REPO=OWNER/prom-marketplace ./scripts/github/bootstrap.sh
 - Округлення по рядках замовлення (ADR 0003): підсумок не округлюється вдруге.
 - Баланс продавця може піти в мінус через комісію за замовлення (це свідоме рішення, дивись docs/monetization.md).
 - Немає автентифікації: не розгортайте застосунок у відкритій мережі.
+- Немає захисту CSRF: усі форми мають `th:action`, токен з’явиться разом з автентифікацією.
+- Сторінка замовлення відкривається за послідовним номером: телефон покупця замаскований, захищене посилання в беклозі.
 - Sprint 0 завеликий, а Sprint 2 припадає на новорічні свята (потужність близько 60%).
 - Юридичні питання (ПРРО, ПДВ, вибір платіжного провайдера) не вирішені; для цього є спайк.
 

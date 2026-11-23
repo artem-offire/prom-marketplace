@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Оформлення замовлення', ~{::main})}">
+<body>
+<main id="main" class="container narrow">
+  <h1>Оформлення замовлення</h1>
+
+  <section class="summary card" aria-labelledby="sum-heading">
+    <h2 id="sum-heading">Ваше замовлення</h2>
+    <p><a th:href="@{/products/{id}(id=${product.id})}" th:text="${product.title}">Назва товару</a></p>
+    <p class="muted">Категорія: <span th:text="${categoryName}">Категорія</span>. Ціна за одиницю:
+      <span th:text="${@fmt.money(product.price)}">100,00 грн</span></p>
+    <p>Разом: <strong class="price" th:text="${@fmt.money(total)}">100,00 грн</strong></p>
+    <p class="muted">Одне замовлення містить один товар.</p>
+  </section>
+
+  <form th:action="@{/checkout}" method="post" th:object="${form}" novalidate>
+    <div th:replace="~{fragments/form-errors :: global}"></div>
+    <input type="hidden" th:field="*{productId}">
+
+    <div class="field" th:classappend="${#fields.hasErrors('quantity')} ? 'has-error'">
+      <label for="quantity">Кількість</label>
+      <input type="number" id="quantity" th:field="*{quantity}" min="1"
+             th:attr="aria-invalid=${#fields.hasErrors('quantity')} ? 'true', aria-describedby=${#fields.hasErrors('quantity')} ? 'quantity-error'">
+      <small id="quantity-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}">Помилка</small>
+    </div>
+
+    <div class="field" th:classappend="${#fields.hasErrors('buyerName')} ? 'has-error'">
+      <label for="buyerName">Ім’я та прізвище</label>
+      <input type="text" id="buyerName" th:field="*{buyerName}" maxlength="200" autocomplete="name"
+             th:attr="aria-invalid=${#fields.hasErrors('buyerName')} ? 'true', aria-describedby=${#fields.hasErrors('buyerName')} ? 'buyerName-error'">
+      <small id="buyerName-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('buyerName')}" th:errors="*{buyerName}">Помилка</small>
+    </div>
+
+    <div class="field" th:classappend="${#fields.hasErrors('buyerPhone')} ? 'has-error'">
+      <label for="buyerPhone">Телефон</label>
+      <input type="tel" id="buyerPhone" th:field="*{buyerPhone}" maxlength="32" autocomplete="tel"
+             placeholder="+380501234567"
+             th:attr="aria-invalid=${#fields.hasErrors('buyerPhone')} ? 'true', aria-describedby=${#fields.hasErrors('buyerPhone')} ? 'buyerPhone-error'">
+      <small id="buyerPhone-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('buyerPhone')}" th:errors="*{buyerPhone}">Помилка</small>
+    </div>
+
+    <div class="field" th:classappend="${#fields.hasErrors('buyerEmail')} ? 'has-error'">
+      <label for="buyerEmail">Пошта (необов’язково)</label>
+      <input type="email" id="buyerEmail" th:field="*{buyerEmail}" maxlength="254" autocomplete="email"
+             th:attr="aria-invalid=${#fields.hasErrors('buyerEmail')} ? 'true', aria-describedby=${#fields.hasErrors('buyerEmail')} ? 'buyerEmail-error'">
+      <small id="buyerEmail-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('buyerEmail')}" th:errors="*{buyerEmail}">Помилка</small>
+    </div>
+
+    <fieldset class="field" th:classappend="${#fields.hasErrors('paymentMethod')} ? 'has-error'">
+      <legend>Спосіб оплати</legend>
+      <label class="radio" th:each="m : ${paymentMethods}">
+        <input type="radio" th:field="*{paymentMethod}" th:value="${m.name()}">
+        <span th:text="#{payment.method.__${m}__}">Оплата при отриманні</span>
+      </label>
+      <p class="muted" th:unless="${onlineAllowed}">Цей продавець приймає лише оплату при отриманні.</p>
+      <small class="field-error" role="alert"
+             th:if="${#fields.hasErrors('paymentMethod')}" th:errors="*{paymentMethod}">Помилка</small>
+    </fieldset>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Підтвердити замовлення</button>
+      <a class="btn btn-secondary" th:href="@{/products/{id}(id=${product.id})}">Назад до товару</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>

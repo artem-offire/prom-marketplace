@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<body>
+<article class="card product-card" th:fragment="card(p, categoryName)">
+  <h3 class="card-title"><a th:href="@{/products/{id}(id=${p.id})}" th:text="${p.title}">Назва товару</a></h3>
+  <p class="card-meta" th:text="${categoryName}">Категорія</p>
+  <p class="price" th:text="${@fmt.money(p.price)}">100,00 грн</p>
+  <p class="stock muted" th:if="${p.stock > 0}">В наявності: <span th:text="${p.stock}">1</span> шт.</p>
+  <p class="stock muted" th:unless="${p.stock > 0}">Немає в наявності</p>
+</article>
+
+<article class="card product-card is-ad" th:fragment="ad(a)">
+  <span class="badge badge-ad">Реклама</span>
+  <h3 class="card-title" th:text="${a.title}">Назва товару</h3>
+  <p class="card-meta" th:text="${a.categoryName}">Категорія</p>
+  <p class="price" th:text="${@fmt.money(a.price)}">100,00 грн</p>
+  <form th:action="@{/ads/{id}/click(id=${a.impressionId})}" method="post">
+    <input type="hidden" name="productId" th:value="${a.productId}">
+    <button type="submit" class="btn btn-secondary btn-block">Детальніше</button>
+  </form>
+</article>
+</body>
+</html>

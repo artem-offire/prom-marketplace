@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(${'Замовлення №' + order.id}, ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/cabinet-nav :: nav(${seller}, 'orders')}"></div>
+  <p><a th:href="@{/cabinet/{sid}/orders(sid=${seller.id})}">&larr; Усі замовлення</a></p>
+  <h1>Замовлення №<span th:text="${order.id}">1</span></h1>
+  <p>Статус: <span class="badge" th:classappend="${'badge-' + order.status.name()}"
+                   th:text="#{order.status.__${order.status}__}">Нове</span></p>
+
+  <section class="card" aria-labelledby="actions-heading">
+    <h2 id="actions-heading">Дії</h2>
+    <div class="form-actions" th:if="${not #lists.isEmpty(actions)}">
+      <form th:each="a : ${actions}"
+            th:action="@{/cabinet/{sid}/orders/{oid}/{act}(sid=${seller.id},oid=${order.id},act=${#strings.toLowerCase(a.name())})}"
+            method="post">
+        <button type="submit" class="btn"
+                th:classappend="${a.name() == 'CANCEL'} ? 'btn-danger' : 'btn-primary'"
+                th:disabled="${a.name() == 'CONFIRM' and confirmBlocked}"
+                th:text="#{order.action.__${a}__}">Підтвердити</button>
+      </form>
+    </div>
+    <p class="muted" th:if="${confirmBlocked and order.status.name() == 'NEW'}">Очікує оплати: підтвердити замовлення можна після онлайн-оплати.</p>
+    <p class="muted" th:if="${#lists.isEmpty(actions)}">Для цього статусу дій немає.</p>
+  </section>
+
+  <section class="card" aria-labelledby="items-heading">
+    <h2 id="items-heading">Товари і комісія</h2>
+    <div class="table-scroll">
+      <table class="table">
+        <caption class="visually-hidden">Склад замовлення</caption>
+        <thead>
+          <tr>
+            <th scope="col">Назва</th>
+            <th scope="col" class="num">Ціна</th>
+            <th scope="col" class="num">Кількість</th>
+            <th scope="col" class="num">Сума</th>
+            <th scope="col" class="num">Ставка комісії</th>
+            <th scope="col" class="num">Комісія</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="i : ${order.items}">
+            <td th:text="${i.title}">Товар</td>
+            <td class="num" th:text="${@fmt.money(i.unitPrice)}">100,00 грн</td>
+            <td class="num" th:text="${i.quantity}">1</td>
+            <td class="num" th:text="${@fmt.money(i.lineTotal)}">100,00 грн</td>
+            <td class="num" th:text="${@fmt.percent(i.commissionRate)}">5,00 %</td>
+            <td class="num" th:text="${@fmt.money(i.commissionAmount)}">0,00 грн</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" colspan="3">Разом</th>
+            <td class="num"><strong th:text="${@fmt.money(order.total)}">100,00 грн</strong></td>
+            <th scope="row">Комісія</th>
+            <td class="num"><strong th:text="${@fmt.money(order.commissionAmount)}">0,00 грн</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="buyer-heading">
+    <h2 id="buyer-heading">Покупець і оплата</h2>
+    <dl class="kv">
+      <dt>Ім’я</dt><dd th:text="${order.buyerName}">Ім’я</dd>
+      <dt>Телефон</dt><dd th:text="${@fmt.maskPhone(order.buyerPhone)}">+38050***33</dd>
+      <dt>Пошта</dt><dd th:text="${#strings.isEmpty(order.buyerEmail)} ? 'не вказано' : ${@fmt.maskEmail(order.buyerEmail)}">не вказано</dd>
+      <dt>Оформлено</dt><dd th:text="${@fmt.dateTime(order.createdAt)}">01.01.2026 10:00</dd>
+      <dt>Спосіб оплати</dt><dd th:text="#{payment.method.__${order.paymentMethod}__}">Оплата при отриманні</dd>
+      <dt th:if="${order.paymentMethod.name() == 'ONLINE'}">Статус платежу</dt>
+      <dd th:if="${order.paymentMethod.name() == 'ONLINE'}"
+          th:text="${payment != null} ? #{payment.status.__${payment?.status}__} : 'Платіж не створено'">Очікуємо оплату</dd>
+    </dl>
+  </section>
+</main>
+</body>
+</html>

@@ -101,6 +101,19 @@ public class ProductService {
         return toView(p);
     }
 
+    @Transactional(readOnly = true)
+    public ProductDto get(Long id) {
+        Product p = productRepo.findById(id)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.PRODUCT_NOT_FOUND, "Product not found: " + id));
+        return toDto(p);
+    }
+
+    /** Кількість товарів, що займають ліміт пакета (усі, крім ARCHIVED): та сама умова, що в create. */
+    @Transactional(readOnly = true)
+    public long countUsed(Long sellerId) {
+        return productRepo.countBySellerIdAndStatusNot(sellerId, ARCHIVED);
+    }
+
     /** Відсутні ідентифікатори не дають помилки: виклик перевіряє розмір результату сам. */
     @Transactional(readOnly = true)
     public List<ProductView> findViews(Collection<Long> ids) {

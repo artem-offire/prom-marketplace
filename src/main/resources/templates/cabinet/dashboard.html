@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Огляд кабінету', ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/cabinet-nav :: nav(${seller}, 'overview')}"></div>
+  <h1>Огляд</h1>
+
+  <div class="alert alert-warning" role="alert" th:if="${balance.balance.signum() < 0}">
+    Баланс від’ємний: поповніть його, щоб реклама і нові покупки пакетів працювали.
+    <a th:href="@{/cabinet/{sid}/balance(sid=${seller.id})}">Поповнити баланс</a>
+  </div>
+  <div class="alert alert-info" role="note" th:unless="${visible}">
+    Товари не показуються у вітрині на пакеті FREE. Оберіть платний пакет, щоб покупці побачили ваші товари.
+    <a th:href="@{/cabinet/{sid}/plan(sid=${seller.id})}">Переглянути пакети</a>
+  </div>
+
+  <div class="tiles">
+    <section class="tile" aria-labelledby="t-plan">
+      <h2 id="t-plan" class="tile-title">Пакет</h2>
+      <p class="tile-value" th:text="#{plan.code.__${subscription.planCode}__}">FREE</p>
+      <p class="muted" th:if="${subscription.endDate != null}">Діє до <span th:text="${@fmt.date(subscription.endDate)}">01.01.2027</span></p>
+      <p class="muted" th:if="${subscription.endDate == null}">Без обмеження за датою</p>
+    </section>
+    <section class="tile" aria-labelledby="t-balance">
+      <h2 id="t-balance" class="tile-title">Баланс</h2>
+      <p class="tile-value" th:text="${@fmt.money(balance.balance)}">0,00 грн</p>
+      <p class="muted"><a th:href="@{/cabinet/{sid}/balance(sid=${seller.id})}">Поповнити</a></p>
+    </section>
+    <section class="tile" aria-labelledby="t-payable">
+      <h2 id="t-payable" class="tile-title">До виплати</h2>
+      <p class="tile-value" th:text="${@fmt.money(balance.payable)}">0,00 грн</p>
+      <p class="muted">Кошти від онлайн-оплат</p>
+    </section>
+    <section class="tile" aria-labelledby="t-products">
+      <h2 id="t-products" class="tile-title">Товари</h2>
+      <p class="tile-value" th:text="${used} + ' з ' + ${limit}">0 з 50</p>
+      <p class="muted"><a th:href="@{/cabinet/{sid}/products(sid=${seller.id})}">Керувати товарами</a></p>
+    </section>
+    <section class="tile" aria-labelledby="t-orders">
+      <h2 id="t-orders" class="tile-title">Нові замовлення</h2>
+      <p class="tile-value" th:text="${newOrders}">0</p>
+      <p class="muted"><a th:href="@{/cabinet/{sid}/orders(sid=${seller.id})}">Усі замовлення</a></p>
+    </section>
+    <section class="tile" aria-labelledby="t-campaigns">
+      <h2 id="t-campaigns" class="tile-title">Активні кампанії</h2>
+      <p class="tile-value" th:text="${activeCampaigns}">0</p>
+      <p class="muted"><a th:href="@{/cabinet/{sid}/campaigns(sid=${seller.id})}">Реклама</a></p>
+    </section>
+  </div>
+</main>
+</body>
+</html>

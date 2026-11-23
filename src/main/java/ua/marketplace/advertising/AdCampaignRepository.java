@@ -16,4 +16,6 @@ public interface AdCampaignRepository extends JpaRepository<AdCampaign, Long> {
     Optional<AdCampaign> findForUpdate(@Param("id") Long id);
 
     List<AdCampaign> findByIdIn(Collection<Long> ids);
+
+    List<AdCampaign> findBySellerIdOrderByIdDesc(Long sellerId);
 }

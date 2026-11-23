@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Тарифні пакети', ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/cabinet-nav :: nav(${seller}, 'plan')}"></div>
+  <h1>Тарифні пакети</h1>
+  <p>Баланс: <strong th:text="${@fmt.money(balance.balance)}">0,00 грн</strong>
+    <a th:href="@{/cabinet/{sid}/balance(sid=${seller.id})}">Поповнити</a></p>
+  <p class="alert alert-info" role="note" th:unless="${onFree}">
+    Зміна пакета з перерахунком стане доступною найближчим часом
+  </p>
+
+  <div class="table-scroll">
+    <table class="table plan-table">
+      <caption class="visually-hidden">Порівняння пакетів</caption>
+      <thead>
+        <tr>
+          <th scope="col">Пакет</th>
+          <th scope="col" class="num">За місяць</th>
+          <th scope="col" class="num">За рік</th>
+          <th scope="col" class="num">Економія за рік</th>
+          <th scope="col" class="num">Ліміт товарів</th>
+          <th scope="col">Показ у вітрині</th>
+          <th scope="col">Функції</th>
+          <th scope="col">Купівля</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="r : ${rows}" th:classappend="${r.current} ? 'row-current'">
+          <th scope="row">
+            <span th:text="${r.plan.code.name()}">FREE</span>
+            <span class="muted" th:text="${r.plan.name}">Безкоштовний</span>
+            <span class="badge badge-ok" th:if="${r.current}">Поточний</span>
+          </th>
+          <td class="num" th:text="${@fmt.money(r.plan.monthlyPrice)}">0,00 грн</td>
+          <td class="num" th:text="${@fmt.money(r.plan.yearlyPrice)}">0,00 грн</td>
+          <td class="num" th:text="${@fmt.money(r.yearlySaving)}">0,00 грн</td>
+          <td class="num" th:text="${r.plan.productLimit}">50</td>
+          <td th:text="${r.plan.marketplaceVisible} ? 'Так' : 'Ні'">Ні</td>
+          <td>
+            <ul class="plain-list" th:if="${not #lists.isEmpty(r.plan.features)}">
+              <li th:each="f : ${r.plan.features}" th:text="#{plan.feature.__${f}__}">Функція</li>
+            </ul>
+            <span class="muted" th:if="${#lists.isEmpty(r.plan.features)}">Базові</span>
+          </td>
+          <td>
+            <span class="muted" th:if="${r.plan.code.name() == 'FREE'}">Безкоштовно</span>
+            <th:block th:if="${r.plan.code.name() != 'FREE'}">
+              <th:block th:if="${onFree}">
+                <form th:action="@{/cabinet/{sid}/plan/purchase(sid=${seller.id})}" method="post">
+                  <input type="hidden" name="planCode" th:value="${r.plan.code.name()}">
+                  <input type="hidden" name="period" value="MONTHLY">
+                  <button type="submit" class="btn btn-primary btn-block">Купити на місяць</button>
+                </form>
+                <p class="muted" th:if="${r.missingMonthly.signum() > 0}">Не вистачає
+                  <span th:text="${@fmt.money(r.missingMonthly)}">0,00 грн</span></p>
+                <form th:action="@{/cabinet/{sid}/plan/purchase(sid=${seller.id})}" method="post">
+                  <input type="hidden" name="planCode" th:value="${r.plan.code.name()}">
+                  <input type="hidden" name="period" value="YEARLY">
+                  <button type="submit" class="btn btn-secondary btn-block">Купити на рік</button>
+                </form>
+                <p class="muted" th:if="${r.missingYearly.signum() > 0}">Не вистачає
+                  <span th:text="${@fmt.money(r.missingYearly)}">0,00 грн</span></p>
+              </th:block>
+              <th:block th:unless="${onFree}">
+                <button type="button" class="btn btn-primary btn-block" disabled>Купити на місяць</button>
+                <button type="button" class="btn btn-secondary btn-block" disabled>Купити на рік</button>
+              </th:block>
+            </th:block>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted">Ціни пакетів ілюстративні. Кошти списуються з балансу.</p>
+</main>
+</body>
+</html>

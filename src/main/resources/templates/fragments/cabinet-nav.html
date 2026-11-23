@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="cabinet-head" th:fragment="nav(seller, active)">
+  <div th:replace="~{fragments/temp-access-banner :: banner}"></div>
+  <p class="eyebrow">
+    Кабінет продавця №<span th:text="${seller.id}">1</span>:
+    <strong th:text="${seller.name}">Магазин</strong>,
+    пакет <strong th:text="#{plan.code.__${subscription.planCode}__}">FREE</strong>
+  </p>
+  <nav class="subnav" aria-label="Розділи кабінету">
+    <ul>
+      <li><a th:href="@{/cabinet/{sid}(sid=${seller.id})}" th:classappend="${active == 'overview'} ? 'is-active'"
+             th:attr="aria-current=${active == 'overview'} ? 'page'">Огляд</a></li>
+      <li><a th:href="@{/cabinet/{sid}/products(sid=${seller.id})}" th:classappend="${active == 'products'} ? 'is-active'"
+             th:attr="aria-current=${active == 'products'} ? 'page'">Товари</a></li>
+      <li><a th:href="@{/cabinet/{sid}/plan(sid=${seller.id})}" th:classappend="${active == 'plan'} ? 'is-active'"
+             th:attr="aria-current=${active == 'plan'} ? 'page'">Пакети</a></li>
+      <li><a th:href="@{/cabinet/{sid}/balance(sid=${seller.id})}" th:classappend="${active == 'balance'} ? 'is-active'"
+             th:attr="aria-current=${active == 'balance'} ? 'page'">Баланс</a></li>
+      <li><a th:href="@{/cabinet/{sid}/campaigns(sid=${seller.id})}" th:classappend="${active == 'campaigns'} ? 'is-active'"
+             th:attr="aria-current=${active == 'campaigns'} ? 'page'">Реклама</a></li>
+      <li><a th:href="@{/cabinet/{sid}/orders(sid=${seller.id})}" th:classappend="${active == 'orders'} ? 'is-active'"
+             th:attr="aria-current=${active == 'orders'} ? 'page'">Замовлення</a></li>
+    </ul>
+  </nav>
+</div>
+</body>
+</html>

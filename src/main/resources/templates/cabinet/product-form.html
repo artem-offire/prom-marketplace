@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(${editing ? 'Редагування товару' : 'Новий товар'}, ~{::main})}">
+<body>
+<main id="main" class="container narrow">
+  <div th:replace="~{fragments/cabinet-nav :: nav(${seller}, 'products')}"></div>
+  <h1 th:text="${editing ? 'Редагування товару' : 'Новий товар'}">Новий товар</h1>
+
+  <form th:action="${editing} ? @{/cabinet/{sid}/products/{pid}/edit(sid=${seller.id},pid=${productId})} : @{/cabinet/{sid}/products/new(sid=${seller.id})}"
+        method="post" th:object="${form}" novalidate>
+    <div th:replace="~{fragments/form-errors :: global}"></div>
+    <p class="muted" th:if="${limitReached}">
+      <a th:href="@{/cabinet/{sid}/plan(sid=${seller.id})}">Перейдіть на пакет з більшим лімітом</a> або архівуйте непотрібні товари.
+    </p>
+
+    <div class="field" th:classappend="${#fields.hasErrors('categoryId')} ? 'has-error'">
+      <label for="categoryId">Категорія</label>
+      <select id="categoryId" th:field="*{categoryId}"
+              th:attr="aria-invalid=${#fields.hasErrors('categoryId')} ? 'true', aria-describedby=${#fields.hasErrors('categoryId')} ? 'categoryId-error'">
+        <option value="">Оберіть категорію</option>
+        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}">Категорія</option>
+      </select>
+      <small id="categoryId-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}">Помилка</small>
+    </div>
+
+    <div class="field" th:classappend="${#fields.hasErrors('title')} ? 'has-error'">
+      <label for="title">Назва</label>
+      <input type="text" id="title" th:field="*{title}" maxlength="300"
+             th:attr="aria-invalid=${#fields.hasErrors('title')} ? 'true', aria-describedby=${#fields.hasErrors('title')} ? 'title-error'">
+      <small id="title-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Помилка</small>
+    </div>
+
+    <div class="field" th:classappend="${#fields.hasErrors('description')} ? 'has-error'">
+      <label for="description">Опис</label>
+      <textarea id="description" th:field="*{description}" rows="5" maxlength="4000"
+                th:attr="aria-invalid=${#fields.hasErrors('description')} ? 'true', aria-describedby=${#fields.hasErrors('description')} ? 'description-error'"></textarea>
+      <small id="description-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('description')}" th:errors="*{description}">Помилка</small>
+    </div>
+
+    <div class="field" th:classappend="${#fields.hasErrors('price')} ? 'has-error'">
+      <label for="price">Ціна, грн</label>
+      <input type="text" id="price" th:field="*{price}" inputmode="decimal" placeholder="1234,50"
+             th:attr="aria-invalid=${#fields.hasErrors('price')} ? 'true', aria-describedby=${#fields.hasErrors('price')} ? 'price-error'">
+      <small id="price-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('price')}" th:errors="*{price}">Помилка</small>
+    </div>
+
+    <div class="field" th:classappend="${#fields.hasErrors('stock')} ? 'has-error'">
+      <label for="stock">Залишок, шт.</label>
+      <input type="text" id="stock" th:field="*{stock}" inputmode="numeric"
+             th:attr="aria-invalid=${#fields.hasErrors('stock')} ? 'true', aria-describedby=${#fields.hasErrors('stock')} ? 'stock-error'">
+      <small id="stock-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('stock')}" th:errors="*{stock}">Помилка</small>
+    </div>
+
+    <div class="field" th:classappend="${#fields.hasErrors('status')} ? 'has-error'">
+      <label for="status">Статус</label>
+      <select id="status" th:field="*{status}">
+        <option th:each="s : ${statusOptions}" th:value="${s.name()}" th:text="#{product.status.__${s}__}">Активний</option>
+      </select>
+      <p class="muted">Покупці бачать лише активні товари і лише для пакетів із показом у вітрині.</p>
+      <small id="status-error" class="field-error" role="alert"
+             th:if="${#fields.hasErrors('status')}" th:errors="*{status}">Помилка</small>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Зберегти</button>
+      <a class="btn btn-secondary" th:href="@{/cabinet/{sid}/products(sid=${seller.id})}">Скасувати</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>

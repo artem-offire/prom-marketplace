@@ -3,15 +3,21 @@ package ua.marketplace;
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
 import static com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleName;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleNameEndingWith;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
 import static com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices;
 
+import com.tngtech.archunit.core.domain.properties.CanBeAnnotated;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
+import jakarta.persistence.Entity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 @AnalyzeClasses(packages = "ua.marketplace", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
@@ -55,6 +61,33 @@ class ArchitectureTest {
     @ArchTest
     static final ArchRule no_field_injection =
         noFields().should().beAnnotatedWith(Autowired.class);
+
+    // Веб-зріз: залежить від усіх модулів, але ніхто не залежить від нього.
+    @ArchTest
+    static final ArchRule no_module_depends_on_web =
+        noClasses().that().resideOutsideOfPackage(ROOT + "web..")
+            .should().dependOnClassesThat().resideInAPackage(ROOT + "web..");
+
+    @ArchTest
+    static final ArchRule web_uses_services_not_persistence =
+        noClasses().that().resideInAPackage(ROOT + "web..")
+            .should().dependOnClassesThat(
+                simpleNameEndingWith("Repository").or(CanBeAnnotated.Predicates.annotatedWith(Entity.class)));
+
+    @ArchTest
+    static final ArchRule web_does_not_call_rest_controllers =
+        noClasses().that().resideInAPackage(ROOT + "web..")
+            .should().dependOnClassesThat().areAnnotatedWith(RestController.class);
+
+    @ArchTest
+    static final ArchRule rest_controllers_outside_web =
+        classes().that().areAnnotatedWith(RestController.class)
+            .should().resideOutsideOfPackage(ROOT + "web..");
+
+    @ArchTest
+    static final ArchRule web_controllers_are_mvc =
+        classes().that().resideInAPackage(ROOT + "web..").and().haveSimpleNameEndingWith("Controller")
+            .should().beAnnotatedWith(Controller.class).andShould().notBeAnnotatedWith(RestController.class);
 
     private static ArchRule forbid(String module, String... forbiddenModules) {
         String[] packages = java.util.Arrays.stream(forbiddenModules).map(m -> ROOT + m + "..").toArray(String[]::new);

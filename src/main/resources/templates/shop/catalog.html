@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Каталог', ~{::main})}">
+<body>
+<main id="main" class="container">
+  <h1>Каталог</h1>
+
+  <form class="filter-bar" th:action="@{/catalog}" method="get">
+    <div class="field">
+      <label for="category">Категорія</label>
+      <select id="category" name="category">
+        <option value="">Усі категорії</option>
+        <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"
+                th:selected="${selectedCategory != null and selectedCategory == c.id}">Категорія</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="q">Пошук</label>
+      <input type="search" id="q" name="q" th:value="${q}" maxlength="100" placeholder="Назва товару">
+    </div>
+    <button type="submit" class="btn btn-primary">Показати</button>
+  </form>
+
+  <section aria-labelledby="ads-heading" th:if="${not #lists.isEmpty(ads)}">
+    <h2 id="ads-heading">Реклама в категорії</h2>
+    <div class="grid-cards">
+      <th:block th:each="a : ${ads}">
+        <div th:replace="~{fragments/product-card :: ad(${a})}"></div>
+      </th:block>
+    </div>
+  </section>
+
+  <section aria-labelledby="res-heading">
+    <h2 id="res-heading">Знайдено: <span th:text="${results.totalElements}">0</span></h2>
+    <div class="grid-cards" th:if="${not #lists.isEmpty(results.content)}">
+      <th:block th:each="p : ${results.content}">
+        <div th:replace="~{fragments/product-card :: card(${p}, ${categoryNames[p.categoryId]})}"></div>
+      </th:block>
+    </div>
+    <div class="empty" th:if="${#lists.isEmpty(results.content)}">
+      <p th:if="${not #strings.isEmpty(q)}" th:text="|Нічого не знайдено за запитом «${q}»|">Нічого не знайдено за запитом «запит»</p>
+      <p th:if="${#strings.isEmpty(q)}">Тут поки що немає товарів.</p>
+      <p><a th:href="@{/catalog}">Скинути фільтри</a></p>
+    </div>
+    <div th:replace="~{fragments/pager :: pager(${pager})}"></div>
+  </section>
+</main>
+</body>
+</html>

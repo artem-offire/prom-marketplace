@@ -5,6 +5,7 @@ import static ua.marketplace.subscription.PlanFeature.PROSALE;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -128,6 +129,25 @@ public class CampaignService {
             }
         }
         return bidRepo.findByCampaignId(campaignId).stream().map(this::toBidDto).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CampaignDto> listBySeller(Long sellerId) {
+        return campaignRepo.findBySellerIdOrderByIdDesc(sellerId).stream().map(this::toDto).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public CampaignDto get(Long campaignId) {
+        return toDto(findCampaign(campaignId));
+    }
+
+    @Transactional(readOnly = true)
+    public List<BidDto> listBids(Long campaignId) {
+        findCampaign(campaignId);
+        return bidRepo.findByCampaignId(campaignId).stream()
+            .map(this::toBidDto)
+            .sorted(Comparator.comparing(BidDto::id))
+            .toList();
     }
 
     private void checkMinBudget(Money budget) {

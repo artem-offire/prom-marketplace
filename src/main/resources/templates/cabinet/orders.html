@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Замовлення', ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/cabinet-nav :: nav(${seller}, 'orders')}"></div>
+  <h1>Замовлення</h1>
+
+  <nav class="tabs" aria-label="Фільтр за статусом">
+    <ul>
+      <li><a th:href="@{/cabinet/{sid}/orders(sid=${seller.id})}" th:classappend="${selectedStatus == null} ? 'is-active'"
+             th:attr="aria-current=${selectedStatus == null} ? 'page'">Усі</a></li>
+      <li th:each="s : ${statuses}">
+        <a th:href="@{/cabinet/{sid}/orders(sid=${seller.id},status=${s.name()})}"
+           th:classappend="${selectedStatus != null and selectedStatus.name() == s.name()} ? 'is-active'"
+           th:attr="aria-current=${selectedStatus != null and selectedStatus.name() == s.name()} ? 'page'"
+           th:text="#{order.status.__${s}__}">Нове</a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="table-scroll" th:if="${not #lists.isEmpty(orders.content)}">
+    <table class="table">
+      <caption class="visually-hidden">Замовлення</caption>
+      <thead>
+        <tr>
+          <th scope="col">№</th>
+          <th scope="col">Дата</th>
+          <th scope="col">Покупець</th>
+          <th scope="col">Оплата</th>
+          <th scope="col">Статус</th>
+          <th scope="col" class="num">Сума</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="o : ${orders.content}">
+          <td><a th:href="@{/cabinet/{sid}/orders/{oid}(sid=${seller.id},oid=${o.id})}" th:text="${'№' + o.id}">№1</a></td>
+          <td th:text="${@fmt.dateTime(o.createdAt)}">01.01.2026 10:00</td>
+          <td th:text="${o.buyerName}">Покупець</td>
+          <td th:text="#{payment.method.__${o.paymentMethod}__}">Оплата при отриманні</td>
+          <td><span class="badge" th:classappend="${'badge-' + o.status.name()}" th:text="#{order.status.__${o.status}__}">Нове</span></td>
+          <td class="num" th:text="${@fmt.money(o.total)}">100,00 грн</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="empty" th:if="${#lists.isEmpty(orders.content) and selectedStatus == null}">
+    <p>Замовлень ще немає.</p>
+  </div>
+  <div class="empty" th:if="${#lists.isEmpty(orders.content) and selectedStatus != null}">
+    <p>Немає замовлень з таким статусом.</p>
+  </div>
+  <div th:replace="~{fragments/pager :: pager(${pager})}"></div>
+</main>
+</body>
+</html>

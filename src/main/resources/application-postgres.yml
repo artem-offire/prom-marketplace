@@ -4,3 +4,7 @@ spring:
     username: ${DB_USER:marketplace}
     password: ${DB_PASSWORD:marketplace}
     driver-class-name: org.postgresql.Driver
+
+app:
+  ui:
+    dev-tools: false

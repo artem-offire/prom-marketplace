@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(${'Замовлення №' + order.id}, ~{::main})}">
+<body>
+<main id="main" class="container narrow">
+  <h1>Замовлення №<span th:text="${order.id}">1</span></h1>
+  <p>Статус: <span class="badge" th:classappend="${'badge-' + order.status.name()}"
+                   th:text="#{order.status.__${order.status}__}">Нове</span></p>
+
+  <ol class="steps" aria-label="Етапи замовлення" th:if="${stepIndex >= 0}">
+    <li th:each="s, st : ${steps}" th:classappend="${st.index <= stepIndex} ? 'is-done'"
+        th:attr="aria-current=${st.index == stepIndex} ? 'step'"
+        th:text="#{order.status.__${s}__}">Нове</li>
+  </ol>
+
+  <section class="card" aria-labelledby="items-heading">
+    <h2 id="items-heading">Товари</h2>
+    <div class="table-scroll">
+      <table class="table">
+        <caption class="visually-hidden">Склад замовлення</caption>
+        <thead>
+          <tr>
+            <th scope="col">Назва</th>
+            <th scope="col" class="num">Ціна</th>
+            <th scope="col" class="num">Кількість</th>
+            <th scope="col" class="num">Сума</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="i : ${order.items}">
+            <td th:text="${i.title}">Товар</td>
+            <td class="num" th:text="${@fmt.money(i.unitPrice)}">100,00 грн</td>
+            <td class="num" th:text="${i.quantity}">1</td>
+            <td class="num" th:text="${@fmt.money(i.lineTotal)}">100,00 грн</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" colspan="3">Разом</th>
+            <td class="num"><strong th:text="${@fmt.money(order.total)}">100,00 грн</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="buyer-heading">
+    <h2 id="buyer-heading">Покупець</h2>
+    <dl class="kv">
+      <dt>Ім’я</dt><dd th:text="${order.buyerName}">Ім’я</dd>
+      <dt>Телефон</dt><dd th:text="${@fmt.maskPhone(order.buyerPhone)}">+38050***33</dd>
+      <dt>Оформлено</dt><dd th:text="${@fmt.dateTime(order.createdAt)}">01.01.2026 10:00</dd>
+      <dt>Оплата</dt><dd th:text="#{payment.method.__${order.paymentMethod}__}">Оплата при отриманні</dd>
+    </dl>
+  </section>
+
+  <section class="card" aria-labelledby="pay-heading" th:if="${order.paymentMethod.name() == 'ONLINE'}">
+    <h2 id="pay-heading">Онлайн-оплата</h2>
+    <p th:if="${payment != null}">Статус платежу:
+      <strong th:text="#{payment.status.__${payment.status}__}">Очікуємо оплату</strong></p>
+    <p th:if="${payment == null}">Платіж ще не створено.</p>
+
+    <form th:action="@{/orders/{id}/pay(id=${order.id})}" method="post"
+          th:if="${order.status.name() == 'NEW' and (payment == null or payment.status.name() == 'FAILED')}">
+      <button type="submit" class="btn btn-primary">Оплатити ще раз</button>
+    </form>
+
+    <div class="dev-box" th:if="${devTools and payment != null and payment.status.name() == 'PENDING'}">
+      <p><span class="badge badge-warn">Режим розробки</span> Імітація відповіді платіжної системи:</p>
+      <div class="form-actions">
+        <form th:action="@{/dev/payments/{pid}/success(pid=${payment.id})}" method="post">
+          <button type="submit" class="btn btn-secondary">Імітувати успішну оплату</button>
+        </form>
+        <form th:action="@{/dev/payments/{pid}/failure(pid=${payment.id})}" method="post">
+          <button type="submit" class="btn btn-secondary">Імітувати відмову</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <p><a th:href="@{/catalog}">Повернутися до каталогу</a></p>
+</main>
+</body>
+</html>
