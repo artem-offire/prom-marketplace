@@ -18,7 +18,7 @@ public final class Html {
         return new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
     }
 
-    /** Те, що Thymeleaf робить з тексту в th:text: екранує п'ять символів. */
+    /** Те, що Thymeleaf робить з тексту в th:text: екранує п’ять символів. */
     public static String esc(String s) {
         return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
             .replace("\"", "&quot;").replace("'", "&#39;");

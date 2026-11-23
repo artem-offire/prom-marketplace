@@ -39,7 +39,8 @@ public class CheckoutForm {
     /** Один товар на замовлення; телефон нормалізується до цифр і плюса. */
     public CheckoutRequest toRequest() {
         String phone = buyerPhone.replaceAll("[\\s()\\-]", "");
-        return new CheckoutRequest(buyerName, phone, buyerEmail, paymentMethod,
+        String email = buyerEmail == null || buyerEmail.isBlank() ? null : buyerEmail.strip();
+        return new CheckoutRequest(buyerName.strip(), phone, email, paymentMethod,
             List.of(new CheckoutItem(productId, quantity)));
     }
 

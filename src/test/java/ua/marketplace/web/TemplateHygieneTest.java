@@ -26,7 +26,21 @@ class TemplateHygieneTest {
 
     @Test
     void templatesExist() throws IOException {
-        assertThat(files(TEMPLATES)).hasSizeGreaterThanOrEqualTo(30);
+        List<String> expected = List.of(
+                "layout.html",
+                "fragments/header.html", "fragments/footer.html", "fragments/flash.html", "fragments/pager.html",
+                "fragments/temp-access-banner.html", "fragments/form-errors.html", "fragments/product-card.html",
+                "fragments/cabinet-nav.html",
+                "error/404.html", "error/4xx.html", "error/5xx.html",
+                "shop/home.html", "shop/catalog.html", "shop/product.html", "shop/checkout.html", "shop/order.html",
+                "cabinet/entry.html", "cabinet/dashboard.html", "cabinet/products.html", "cabinet/product-form.html",
+                "cabinet/plan.html", "cabinet/balance.html", "cabinet/campaigns.html", "cabinet/campaign.html",
+                "cabinet/orders.html", "cabinet/order.html",
+                "admin/categories.html");
+        List<String> actual = files(TEMPLATES).stream()
+                .map(p -> TEMPLATES.relativize(p).toString().replace('\\', '/'))
+                .toList();
+        assertThat(actual).containsAll(expected);
     }
 
     @Test

@@ -38,8 +38,8 @@
       </th:block>
     </div>
     <div class="empty" th:if="${#lists.isEmpty(results.content)}">
-      <p th:if="${q != null}">Нічого не знайдено за запитом «<span th:text="${q}">запит</span>»</p>
-      <p th:if="${q == null}">Тут поки що немає товарів.</p>
+      <p th:if="${not #strings.isEmpty(q)}" th:text="|Нічого не знайдено за запитом «${q}»|">Нічого не знайдено за запитом «запит»</p>
+      <p th:if="${#strings.isEmpty(q)}">Тут поки що немає товарів.</p>
       <p><a th:href="@{/catalog}">Скинути фільтри</a></p>
     </div>
     <div th:replace="~{fragments/pager :: pager(${pager})}"></div>

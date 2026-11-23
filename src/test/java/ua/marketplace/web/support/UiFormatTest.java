@@ -18,13 +18,13 @@ class UiFormatTest {
     private final UiFormat fmt = new UiFormat(Clock.system(ZoneId.of("Europe/Kyiv")));
 
     @ParameterizedTest
-    @CsvSource({
-        "1234.56, 1N234,56",
-        "0, 0,00",
-        "1000000, 1N000N000,00",
-        "-12.5, -12,50",
-        "999.995, 1N000,00",
-        "0.005, 0,01"})
+    @CsvSource(delimiter = '|', value = {
+        "1234.56 | 1N234,56",
+        "0       | 0,00",
+        "1000000 | 1N000N000,00",
+        "-12.5   | -12,50",
+        "999.995 | 1N000,00",
+        "0.005   | 0,01"})
     void moneyUsesNbspGroupsCommaAndSuffix(String input, String expectedNumber) {
         String expected = expectedNumber.replace("N", N) + N + "грн";
         assertThat(fmt.money(new BigDecimal(input))).isEqualTo(expected);
@@ -58,6 +58,14 @@ class UiFormatTest {
         assertThat(fmt.maskPhone("+380 50 111 22 33")).isEqualTo("+38050***33");
         assertThat(fmt.maskPhone("12345")).isEqualTo("***");
         assertThat(fmt.maskPhone(null)).isEmpty();
+    }
+
+    @Test
+    void emailIsMasked() {
+        assertThat(fmt.maskEmail("ivan@example.com")).isEqualTo("i***@example.com");
+        assertThat(fmt.maskEmail("no-at-sign")).isEqualTo("***");
+        assertThat(fmt.maskEmail("")).isEmpty();
+        assertThat(fmt.maskEmail(null)).isEmpty();
     }
 
     @Test

@@ -76,10 +76,15 @@ public class CheckoutController {
         if (!br.hasErrors()) {
             try {
                 OrderDto order = orderService.checkout(form.toRequest());
-                if (order.paymentMethod() == PaymentMethod.ONLINE) {
-                    paymentService.init(order.id());
-                }
                 redirect.addFlashAttribute(Flash.SUCCESS, "Замовлення №" + order.id() + " оформлено");
+                if (order.paymentMethod() == PaymentMethod.ONLINE) {
+                    // Замовлення вже створене: помилка платежу не повинна повертати форму (повтор дав би дубль).
+                    try {
+                        paymentService.init(order.id());
+                    } catch (BusinessRuleException e) {
+                        redirect.addFlashAttribute(Flash.ERROR, uiErrors.message(e.code()));
+                    }
+                }
                 return "redirect:/orders/" + order.id();
             } catch (BusinessRuleException e) {
                 br.reject(e.code().name(), uiErrors.message(e.code()));

@@ -34,7 +34,7 @@
       </thead>
       <tbody>
         <tr th:each="o : ${orders.content}">
-          <td><a th:href="@{/cabinet/{sid}/orders/{oid}(sid=${seller.id},oid=${o.id})}" th:text="${o.id}">1</a></td>
+          <td><a th:href="@{/cabinet/{sid}/orders/{oid}(sid=${seller.id},oid=${o.id})}" th:text="${'№' + o.id}">№1</a></td>
           <td th:text="${@fmt.dateTime(o.createdAt)}">01.01.2026 10:00</td>
           <td th:text="${o.buyerName}">Покупець</td>
           <td th:text="#{payment.method.__${o.paymentMethod}__}">Оплата при отриманні</td>

@@ -46,7 +46,11 @@ class CheckoutPageTest {
     }
 
     private MockHttpServletRequestBuilder checkout(long productId, String name, String method) {
-        return post("/checkout").param("productId", String.valueOf(productId)).param("quantity", "1")
+        return checkout(productId, name, method, "1");
+    }
+
+    private MockHttpServletRequestBuilder checkout(long productId, String name, String method, String quantity) {
+        return post("/checkout").param("productId", String.valueOf(productId)).param("quantity", quantity)
             .param("buyerName", name).param("buyerPhone", "+380 50 111 22 33").param("buyerEmail", "")
             .param("paymentMethod", method);
     }
@@ -87,7 +91,7 @@ class CheckoutPageTest {
     void quantityAboveStockIsRejected() throws Exception {
         long product = product(PlanCode.START, "100.00");
 
-        String html = Html.body(mvc.perform(checkout(product, "Іван", "CASH_ON_DELIVERY").param("quantity", "11"))
+        String html = Html.body(mvc.perform(checkout(product, "Іван", "CASH_ON_DELIVERY", "11"))
             .andExpect(status().isOk()).andReturn());
 
         assertThat(html).contains("Доступно лише 10 шт.");

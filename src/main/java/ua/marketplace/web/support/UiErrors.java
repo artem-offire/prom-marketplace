@@ -30,7 +30,7 @@ public class UiErrors {
         return messages.getMessage(key, args, key, UK);
     }
 
-    /** Усі повідомлення BindingResult, розв'язані через messages.properties або текст анотації. */
+    /** Усі повідомлення BindingResult, розв’язані через messages.properties або текст анотації. */
     public List<String> messages(BindingResult result) {
         List<String> out = new ArrayList<>();
         for (ObjectError error : result.getAllErrors()) {

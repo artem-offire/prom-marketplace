@@ -66,8 +66,8 @@
     <h2 id="buyer-heading">Покупець і оплата</h2>
     <dl class="kv">
       <dt>Ім’я</dt><dd th:text="${order.buyerName}">Ім’я</dd>
-      <dt>Телефон</dt><dd th:text="${order.buyerPhone}">+380501112233</dd>
-      <dt>Пошта</dt><dd th:text="${order.buyerEmail != null} ? ${order.buyerEmail} : 'не вказано'">не вказано</dd>
+      <dt>Телефон</dt><dd th:text="${@fmt.maskPhone(order.buyerPhone)}">+38050***33</dd>
+      <dt>Пошта</dt><dd th:text="${#strings.isEmpty(order.buyerEmail)} ? 'не вказано' : ${@fmt.maskEmail(order.buyerEmail)}">не вказано</dd>
       <dt>Оформлено</dt><dd th:text="${@fmt.dateTime(order.createdAt)}">01.01.2026 10:00</dd>
       <dt>Спосіб оплати</dt><dd th:text="#{payment.method.__${order.paymentMethod}__}">Оплата при отриманні</dd>
       <dt th:if="${order.paymentMethod.name() == 'ONLINE'}">Статус платежу</dt>

@@ -76,6 +76,19 @@ public class UiFormat {
         return s.substring(0, 6) + "***" + s.substring(s.length() - 2);
     }
 
+    /** "ivan@example.com" -> "i***@example.com"; рядок без "@" повністю приховується. */
+    public String maskEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return "";
+        }
+        String s = email.strip();
+        int at = s.lastIndexOf('@');
+        if (at < 1) {
+            return "***";
+        }
+        return s.charAt(0) + "***" + s.substring(at);
+    }
+
     /** Код рахунку в журналі -> підпис для продавця. */
     public String accountLabel(String code) {
         if (code == null) {
