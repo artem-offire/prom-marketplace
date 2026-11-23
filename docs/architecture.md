@@ -18,6 +18,7 @@ graph LR
     advertising[advertising]
     order[order]
     payment[payment]
+    web[web]
 
     seller --> common
     billing --> common
@@ -37,6 +38,14 @@ graph LR
     payment --> subscription
     payment --> billing
     payment --> common
+    web --> seller
+    web --> billing
+    web --> subscription
+    web --> catalog
+    web --> advertising
+    web --> order
+    web --> payment
+    web --> common
 
     seller -. SellerRegisteredEvent .-> billing
     seller -. SellerRegisteredEvent .-> subscription
@@ -44,6 +53,10 @@ graph LR
 ```
 
 Суцільна стрілка: залежність у коді (A залежить від B). Пунктир: подія або порт. Модулі `billing` і `subscription` залежать від `seller` лише через клас події `SellerRegisteredEvent`. Граф не має циклів, це перевіряє `ArchitectureTest`.
+
+## 3. Веб-інтерфейс (SSR)
+
+Пакет `ua.marketplace.web` містить MVC-контролери (`@Controller`), форми і шаблони Thymeleaf (`src/main/resources/templates`). Він залежить від усіх модулів, але жоден модуль не залежить від нього. Контролери викликають лише публічні сервіси і працюють з DTO; репозиторії, сутності та REST-контролери з `web` недоступні (правила `ArchitectureTest`). Пакет поділено на `support` (форматування, повідомлення, обробка помилок), `shop` (вітрина), `seller` (кабінет) і `admin` (категорії). Докладніше: [ui.md](ui.md).
 
 ## 4. Відповідальність модулів
 
@@ -57,6 +70,7 @@ graph LR
 | advertising | кампанії, ставки, рейтинг оголошень, покази, кліки та списання |
 | order | замовлення, машина станів, комісія та її повернення |
 | payment | платіж, комісія за платіж, заглушка шлюзу, вебхук, повернення |
+| web | сторінки інтерфейсу: вітрина, кабінет продавця, адмінка категорій; форми, шаблони, обробка помилок для сторінок |
 
 ## 5. Події та порти
 
@@ -92,7 +106,7 @@ erDiagram
 
 ## 8. Помилки
 
-Усі помилки у форматі RFC 7807 (`application/problem+json`) з додатковим полем `code`.
+Помилки REST API (`@RestController`) у форматі RFC 7807 (`application/problem+json`) з додатковим полем `code`; їх обробляє `GlobalExceptionHandler` (лише для `@RestController`). Сторінки інтерфейсу обробляє `WebExceptionHandler` (HTML, тексти з `messages.properties`), решту помилок обробляє Spring Boot. Неіснуючі шляхи під `/api`, 405 і 415 тепер повертають стандартну відповідь Boot.
 Коди 400: `VALIDATION_ERROR`, `MALFORMED_REQUEST`. Коди 404: `*_NOT_FOUND`. Коди 409: бізнес-правила (`INSUFFICIENT_FUNDS`, `PRODUCT_LIMIT_EXCEEDED`, `INVALID_ORDER_TRANSITION` та інші). 500: `INTERNAL_ERROR` без деталей.
 
 ## 9. Профілі та запуск
@@ -101,7 +115,7 @@ erDiagram
 - Профіль `postgres`: PostgreSQL 16 за змінними `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`.
 - `ddl-auto=validate`, схемою керує лише Flyway. `open-in-view=false`.
 - Час: єдиний `Clock` із зоною `Europe/Kyiv`.
-- Автентифікації немає. Адмін-ендпоїнти під `/api/v1/admin/**` не захищені.
+- Автентифікації і захисту CSRF немає. Адмін-ендпоїнти під `/api/v1/admin/**` і сторінки `/admin/**` не захищені.
 
 ## 10. Ризики
 
@@ -115,6 +129,8 @@ erDiagram
 | Округлення | розбіжності на копійки | правило по рядках, ADR 0003 |
 | Від'ємний баланс через комісію | борг продавця | свідомо; обмеження і стягнення в беклозі |
 | Немає автентифікації | неавторизований доступ | не розгортати публічно; issue про ролі |
+| Немає CSRF | підміна запиту від імені продавця | `th:action` у всіх формах, захист разом з автентифікацією |
+| Послідовні номери замовлень у публічних адресах | витік персональних даних | маска телефону, захищене посилання в беклозі |
 | Завеликий Sprint 0 | зрив планування | Sprint 0 не враховується у швидкості |
 | Новорічний Sprint 2 | знижена потужність | планування на 60% |
 | Юридичне: ПРРО, ПДВ, провайдер | неможливість запуску в проді | спайк вибору провайдера |

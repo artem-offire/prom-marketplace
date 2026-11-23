@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav class="pager" aria-label="Сторінки" th:fragment="pager(pager)"
+     th:if="${pager != null and pager.totalPages > 1}">
+  <a th:if="${pager.hasPrev}" th:href="@{${pager.prevUrl}}" rel="prev">&larr; Назад</a>
+  <span class="pager-info">Сторінка <span th:text="${pager.page + 1}">1</span> з <span th:text="${pager.totalPages}">1</span></span>
+  <a th:if="${pager.hasNext}" th:href="@{${pager.nextUrl}}" rel="next">Далі &rarr;</a>
+</nav>
+</body>
+</html>

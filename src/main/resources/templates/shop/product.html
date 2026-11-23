@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(${'Товар: ' + product.title}, ~{::main})}">
+<body>
+<main id="main" class="container">
+  <nav class="breadcrumb" aria-label="Навігація">
+    <a th:href="@{/}">Головна</a> /
+    <a th:href="@{/catalog(category=${product.categoryId})}" th:text="${categoryName}">Категорія</a>
+  </nav>
+
+  <article class="product-detail">
+    <h1 th:text="${product.title}">Назва товару</h1>
+    <p class="price price-large" th:text="${@fmt.money(product.price)}">100,00 грн</p>
+    <p class="stock" th:if="${product.stock > 0}">В наявності: <strong th:text="${product.stock}">1</strong> шт.</p>
+    <p class="stock stock-out" th:unless="${product.stock > 0}">Немає в наявності</p>
+    <p class="muted">Категорія: <span th:text="${categoryName}">Категорія</span></p>
+
+    <div class="description">
+      <h2>Опис</h2>
+      <p th:if="${not #strings.isEmpty(product.description)}" th:text="${product.description}">Опис товару</p>
+      <p class="muted" th:if="${#strings.isEmpty(product.description)}">Опис відсутній</p>
+    </div>
+
+    <form class="buy-form" th:action="@{/checkout}" method="get">
+      <input type="hidden" name="productId" th:value="${product.id}">
+      <div class="field">
+        <label for="quantity">Кількість</label>
+        <input type="number" id="quantity" name="quantity" value="1" min="1" th:max="${maxQuantity}"
+               th:disabled="${product.stock <= 0}">
+      </div>
+      <button type="submit" class="btn btn-primary" th:disabled="${product.stock <= 0}">Купити</button>
+      <p class="muted" th:if="${product.stock <= 0}">Купити зараз неможливо</p>
+    </form>
+  </article>
+</main>
+</body>
+</html>

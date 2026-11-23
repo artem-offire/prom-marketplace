@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org" th:fragment="page(title, content)">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title th:text="${title} + ' - ' + #{app.brand}">Ринок</title>
+  <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<a class="skip-link" href="#main">Перейти до змісту</a>
+<header th:replace="~{fragments/header :: header}"></header>
+<div class="container">
+  <div th:replace="~{fragments/flash :: flash}"></div>
+</div>
+<th:block th:replace="${content}">
+  <main id="main" class="container"><p>Вміст сторінки</p></main>
+</th:block>
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+</body>
+</html>

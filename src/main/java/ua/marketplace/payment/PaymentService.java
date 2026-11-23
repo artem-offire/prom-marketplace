@@ -141,6 +141,11 @@ public class PaymentService {
         return toDto(findPayment(id));
     }
 
+    @Transactional(readOnly = true)
+    public Optional<PaymentDto> findByOrder(Long orderId) {
+        return repo.findByOrderId(orderId).map(this::toDto);
+    }
+
     private Payment findPayment(Long id) {
         return repo.findById(id)
             .orElseThrow(() -> new NotFoundException(ErrorCode.PAYMENT_NOT_FOUND, "Payment not found: " + id));

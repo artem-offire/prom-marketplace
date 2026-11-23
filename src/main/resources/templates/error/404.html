@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Сторінку не знайдено', ~{::main})}">
+<body>
+<main id="main" class="container narrow">
+  <h1 th:text="${errorTitle ?: 'Сторінку не знайдено'}">Сторінку не знайдено</h1>
+  <p th:text="${errorMessage ?: 'Можливо, адресу введено з помилкою або сторінку вилучено.'}">Можливо, адресу введено з помилкою.</p>
+  <p><a class="btn btn-primary" th:href="@{/}">На головну</a> <a class="btn btn-secondary" th:href="@{/catalog}">До каталогу</a></p>
+</main>
+</body>
+</html>

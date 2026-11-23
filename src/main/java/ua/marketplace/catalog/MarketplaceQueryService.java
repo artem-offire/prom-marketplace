@@ -1,6 +1,7 @@
 package ua.marketplace.catalog;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +37,15 @@ public class MarketplaceQueryService {
             ? productRepo.searchVisible(sellerIds, pattern, p)
             : productRepo.searchVisibleInCategory(sellerIds, categoryId, pattern, p);
         return PageResponse.of(result, this::toDto);
+    }
+
+    /** Товар видно покупцеві: статус ACTIVE і пакет продавця дозволяє показ у вітрині. */
+    @Transactional(readOnly = true)
+    public Optional<ProductDto> findVisible(Long productId) {
+        return productRepo.findById(productId)
+            .filter(p -> p.getStatus() == ProductStatus.ACTIVE)
+            .filter(p -> planLimits.isMarketplaceVisible(p.getSellerId()))
+            .map(this::toDto);
     }
 
     private ProductDto toDto(Product p) {

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page(${'Кампанія: ' + campaign.name}, ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/cabinet-nav :: nav(${seller}, 'campaigns')}"></div>
+  <p><a th:href="@{/cabinet/{sid}/campaigns(sid=${seller.id})}">&larr; Усі кампанії</a></p>
+  <h1 th:text="${campaign.name}">Кампанія</h1>
+
+  <div class="tiles">
+    <section class="tile" aria-labelledby="c-status">
+      <h2 id="c-status" class="tile-title">Статус</h2>
+      <p class="tile-value"><span class="badge" th:classappend="${'badge-' + campaign.status.name()}"
+                                  th:text="#{campaign.status.__${campaign.status}__}">Активна</span></p>
+      <form th:if="${campaign.status.name() == 'ACTIVE'}"
+            th:action="@{/cabinet/{sid}/campaigns/{cid}/status(sid=${seller.id},cid=${campaign.id})}" method="post">
+        <input type="hidden" name="status" value="PAUSED">
+        <button type="submit" class="btn btn-secondary">Призупинити</button>
+      </form>
+      <form th:if="${campaign.status.name() == 'PAUSED'}"
+            th:action="@{/cabinet/{sid}/campaigns/{cid}/status(sid=${seller.id},cid=${campaign.id})}" method="post">
+        <input type="hidden" name="status" value="ACTIVE">
+        <button type="submit" class="btn btn-primary">Поновити</button>
+      </form>
+    </section>
+    <section class="tile" aria-labelledby="c-budget">
+      <h2 id="c-budget" class="tile-title">Денний бюджет</h2>
+      <p class="tile-value" th:text="${@fmt.money(campaign.dailyBudget)}">100,00 грн</p>
+    </section>
+    <section class="tile" aria-labelledby="c-spent">
+      <h2 id="c-spent" class="tile-title">Витрачено сьогодні</h2>
+      <p class="tile-value" th:text="${@fmt.money(campaign.spentToday)}">0,00 грн</p>
+    </section>
+    <section class="tile" aria-labelledby="c-rest">
+      <h2 id="c-rest" class="tile-title">Залишок на сьогодні</h2>
+      <p class="tile-value" th:text="${@fmt.money(campaign.remainingBudget)}">100,00 грн</p>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="budget-heading">
+    <h2 id="budget-heading">Змінити денний бюджет</h2>
+    <form th:action="@{/cabinet/{sid}/campaigns/{cid}/budget(sid=${seller.id},cid=${campaign.id})}" method="post"
+          th:object="${budgetForm}" novalidate>
+      <div th:replace="~{fragments/form-errors :: global}"></div>
+      <div class="field" th:classappend="${#fields.hasErrors('dailyBudget')} ? 'has-error'">
+        <label for="dailyBudget">Денний бюджет, грн</label>
+        <input type="text" id="dailyBudget" th:field="*{dailyBudget}" inputmode="decimal"
+               th:attr="aria-invalid=${#fields.hasErrors('dailyBudget')} ? 'true', aria-describedby=${#fields.hasErrors('dailyBudget')} ? 'dailyBudget-error'">
+        <small class="muted">Мінімум: <span th:text="${@fmt.money(minBudget)}">50,00 грн</span></small>
+        <small id="dailyBudget-error" class="field-error" role="alert"
+               th:if="${#fields.hasErrors('dailyBudget')}" th:errors="*{dailyBudget}">Помилка</small>
+      </div>
+      <button type="submit" class="btn btn-primary">Зберегти бюджет</button>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="bids-heading">
+    <h2 id="bids-heading">Ставки за клік</h2>
+    <p class="muted">Залиште поле порожнім, якщо реклама для товару не потрібна. Ставка не може бути нижчою за мінімум категорії.</p>
+    <form th:action="@{/cabinet/{sid}/campaigns/{cid}/bids(sid=${seller.id},cid=${campaign.id})}" method="post"
+          th:object="${bidsForm}" novalidate>
+      <div th:replace="~{fragments/form-errors :: global}"></div>
+      <div class="table-scroll" th:if="${not #lists.isEmpty(bidsForm.rows)}">
+        <table class="table">
+          <caption class="visually-hidden">Ставки на активні товари</caption>
+          <thead>
+            <tr>
+              <th scope="col">Товар</th>
+              <th scope="col" class="num">Мінімальна ставка</th>
+              <th scope="col">Ваша ставка, грн</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="row, st : ${bidsForm.rows}">
+              <td th:text="${row.title}">Товар</td>
+              <td class="num" th:text="${@fmt.money(row.minBid)}">2,00 грн</td>
+              <td>
+                <input type="hidden" th:field="*{rows[__${st.index}__].productId}">
+                <input type="text" th:field="*{rows[__${st.index}__].amount}" inputmode="decimal"
+                       th:attr="aria-label=${'Ставка для: ' + row.title}, aria-invalid=${#fields.hasErrors('rows[__${st.index}__].amount')} ? 'true'">
+                <small class="field-error" role="alert"
+                       th:if="${#fields.hasErrors('rows[__${st.index}__].amount')}"
+                       th:errors="*{rows[__${st.index}__].amount}">Помилка</small>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="empty" th:if="${#lists.isEmpty(bidsForm.rows)}">
+        <p>Немає активних товарів, на які можна зробити ставку.
+          <a th:href="@{/cabinet/{sid}/products(sid=${seller.id})}">Керувати товарами</a></p>
+      </div>
+      <button type="submit" class="btn btn-primary" th:if="${not #lists.isEmpty(bidsForm.rows)}">Зберегти ставки</button>
+    </form>
+  </section>
+
+  <section class="card" aria-labelledby="stats-heading">
+    <h2 id="stats-heading">Статистика</h2>
+    <p class="muted">Статистика з’явиться згодом</p>
+  </section>
+</main>
+</body>
+</html>

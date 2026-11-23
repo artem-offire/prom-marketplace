@@ -24,6 +24,11 @@ spring:
       write-bigdecimal-as-plain: true
     deserialization:
       fail-on-unknown-properties: false
+  web:
+    locale: uk
+    locale-resolver: fixed
+  messages:
+    basename: messages
 
 server:
   error:
@@ -47,6 +52,8 @@ app:
     min-daily-budget: 50.00
     default-slots: 3
     max-slots: 10
+  ui:
+    dev-tools: true
 
 logging:
   level:

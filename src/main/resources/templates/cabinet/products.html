@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: page('Товари', ~{::main})}">
+<body>
+<main id="main" class="container">
+  <div th:replace="~{fragments/cabinet-nav :: nav(${seller}, 'products')}"></div>
+  <div class="page-head">
+    <h1>Товари</h1>
+    <div>
+      <a class="btn btn-primary" th:if="${canAdd}" th:href="@{/cabinet/{sid}/products/new(sid=${seller.id})}">Додати товар</a>
+      <button type="button" class="btn btn-primary" th:unless="${canAdd}" disabled>Додати товар</button>
+    </div>
+  </div>
+  <p>Використано <strong th:text="${used} + ' з ' + ${limit}">0 з 50</strong> місць у пакеті
+    <span th:unless="${canAdd}">(ліміт досягнуто, <a th:href="@{/cabinet/{sid}/plan(sid=${seller.id})}">змінити пакет</a>)</span></p>
+
+  <div class="table-scroll" th:if="${not #lists.isEmpty(products.content)}">
+    <table class="table">
+      <caption class="visually-hidden">Ваші товари</caption>
+      <thead>
+        <tr>
+          <th scope="col">Назва</th>
+          <th scope="col">Категорія</th>
+          <th scope="col" class="num">Ціна</th>
+          <th scope="col" class="num">Залишок</th>
+          <th scope="col">Статус</th>
+          <th scope="col"><span class="visually-hidden">Дії</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="p : ${products.content}">
+          <td th:text="${p.title}">Товар</td>
+          <td th:text="${categoryNames[p.categoryId]}">Категорія</td>
+          <td class="num" th:text="${@fmt.money(p.price)}">100,00 грн</td>
+          <td class="num" th:text="${p.stock}">1</td>
+          <td><span class="badge" th:classappend="${'badge-' + p.status.name()}" th:text="#{product.status.__${p.status}__}">Активний</span></td>
+          <td><a th:href="@{/cabinet/{sid}/products/{pid}/edit(sid=${seller.id},pid=${p.id})}">Редагувати</a></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="empty" th:if="${#lists.isEmpty(products.content)}">
+    <p>Товарів ще немає.</p>
+    <p th:if="${canAdd}"><a class="btn btn-primary" th:href="@{/cabinet/{sid}/products/new(sid=${seller.id})}">Додати перший товар</a></p>
+  </div>
+  <div th:replace="~{fragments/pager :: pager(${pager})}"></div>
+</main>
+</body>
+</html>
